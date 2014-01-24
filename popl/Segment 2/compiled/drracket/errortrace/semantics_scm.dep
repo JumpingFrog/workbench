@@ -1,0 +1,1 @@
+("5.3.6" ("480672a23c39d6384d0da3b1aeed712c6d30e24a" . "f71cc0702f9495f55c1ee53c5ba45c482886b985") #"/usr/userfs/d/dw773/popl/Segment 3/data-structures.scm" (collects #"eopl" #"main.rkt") #"/usr/userfs/d/dw773/popl/Segment 3/syntax.scm" (collects #"eopl" #"lang" #"reader.rkt"))

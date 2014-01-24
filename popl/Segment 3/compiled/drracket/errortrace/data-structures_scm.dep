@@ -1,0 +1,1 @@
+("5.3.6" ("0bd79e7827e3d2e46f9ee71f951b2786a8dde8b0" . "462a6b35084cd665358b87eb490b9f37de7c879c") (collects #"eopl" #"main.rkt") #"/usr/userfs/d/dw773/popl/Segment 3/syntax.scm" (collects #"eopl" #"lang" #"reader.rkt"))
