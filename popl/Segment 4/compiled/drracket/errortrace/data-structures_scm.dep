@@ -1,1 +1,1 @@
-("5.3.6" ("067262cc1846542d3c650dbf5073e67941cb2cc7" . "ae4c1070baa3e08ce16591fa39d5aeb2ef7de121") (collects #"eopl" #"main.rkt") (collects #"errortrace" #"errortrace-key.rkt") #"/usr/userfs/d/dw773/workbench/popl/Segment 4/syntax.scm" (collects #"eopl" #"lang" #"reader.rkt"))
+("5.3.4" ("249e615ed3efa056ed268f31280e898514df8696" . "fb38d1a6ae49253a57262f1d419fb4b51571deae") (collects #"errortrace" #"errortrace-key.rkt") #"/home/david/workbench/popl/Segment 4/syntax.scm" (collects #"eopl" #"main.rkt") (collects #"eopl" #"lang" #"reader.rkt"))

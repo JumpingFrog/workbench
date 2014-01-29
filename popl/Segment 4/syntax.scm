@@ -23,19 +23,18 @@
     (expression 
      ("print(" expression ")") print-exp)
     (expression
-     ("proc(" identifier ")" expression) proc-exp)
-    (expression
      (unary-prim "(" expression ")") unary-prim-exp) 
     (expression
      (binary-prim "(" expression "," expression ")") binary-prim-exp)
     (expression
-     ("let" (arbno identifier "=" expression)  "in" expression) let-exp)
-    (expression ;sequential let
-     ("let*" (arbno identifier "=" expression) "in" expression) slet-exp)
-    (expression
      ("if" expression "then" expression "else" expression) if-exp)
     (expression
      ("cond" (arbno expression "==>" expression ";") "end") cond-exp)
+    ;Let stuff
+    (expression
+     ("let" (arbno identifier "=" expression)  "in" expression) let-exp)
+    (expression ;sequential let
+     ("let*" (arbno identifier "=" expression) "in" expression) slet-exp)
     ;(cond expression "==>" expression (arbno expression "==>" expression))
      (expression (identifier) iden-exp)
     ;List stuff
@@ -43,6 +42,13 @@
      ("[" expression (arbno "," expression) "]") list-exp) ;non-empty list
     (expression
      ("[]") empty-list-exp) ;empty list
+    ;procedures
+    (expression ;procedure creator
+     ("proc(" identifier ")" "{" expression "}") proc-exp)
+    (expression
+     ("(" identifier expression ")") call-exp)
+    (expression
+     ("letp" (arbno identifier "(" identifier ")" "=" expression) "in" expression) letp-exp) 
     )
 )
 ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;

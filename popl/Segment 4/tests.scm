@@ -44,7 +44,6 @@
 (define l4 "let x = 20 y = 5 in +(+(x, 1), y)")
 (define l5 "let* x = 20 y = +(x, 1) in +(y, 1)")
 (define l6 "let* y = +(x, 2) x = 10 in +(y, 1)")
+(define l7 "let x = proc(y) { +(y, 1) } in (x 20)")
 
-    (define (proc-exp2 id exp)
-      (procedure id exp (empty-env))
-    )
+(define p1 "letp inc(x) = +(x,1) in (x 5)")

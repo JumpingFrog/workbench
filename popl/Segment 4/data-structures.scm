@@ -18,6 +18,7 @@
     ((number? x)  (number-ExpVal x))
     ((boolean? x) (bool-ExpVal x))
     ((list? x)    (list-ExpVal x))
+    ((procedure? x) (proc-ExpVal x))
     ;((ExpVal? x)  ((lambda (y) (y)) x)) ;incase we pass an expval, do nothing (for car)
     (else (eopl:error '->ExpVal "~s cannot be an Expressed Value" x))
     )

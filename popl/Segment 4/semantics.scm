@@ -40,17 +40,29 @@
     )
     (cond-exp (cond-list exp-list)
               (eval-cond (zip cond-list exp-list) env))
+    ;let
     (let-exp (idd idexp letexp)
              (value-of letexp (extend-env-list idd (map (lambda (exp) (value-of exp env)) idexp) env))
     )
-    (proc-exp (id exp)
-             (<-ExpVal (procedure id exp env))
-    )
-    (slet-exp (idd idexp letexp)
+    (slet-exp (idd idexp letexp) ;Sequential let
               (value-of letexp (fold (lambda (p e)
                                        (extend-env (car p) (value-of (cadr p) e) e)) 
                                         env (zip idd idexp)))
     )
+    ;procedures
+    (proc-exp (id exp)
+             (->ExpVal (procedure id exp env))
+    )
+    (call-exp (id exp)
+              ((<-ExpVal (apply-env env id)) (value-of exp env)) ;applying and extracting id gives a lambda (val) so apply exp to it.
+    )
+    (letp-exp (ids args exps lexp) ;procedure let
+              (value-of lexp (fold (lambda (p e)
+                               (extend-env (car p) (cadr p) e)) 
+                                env (zip ids (->ExpVal (map (lambda (p) (procedure (car p) (cadr p) env)) (zip args exps))))))
+    )
+    ; ("letp" (arbno identifier "(" identifier ")" "=" expression ",") "in" expression) letp-exp)
+    ;lists
     (empty-list-exp ()
              (->ExpVal '())
     )
@@ -60,10 +72,9 @@
   )
 )
 
-(define procedure
-(lambda (id exp env)
+(define (procedure id exp env) ;create a function that evaluates the proc procedure
        (lambda (val)
-        (value-of exp (extend-env id val env)))))
+        (value-of exp (extend-env id val env))))
 
 (define unary-ops (list (cons "minus" -) 
                         (cons "zero?" zero?)
