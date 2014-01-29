@@ -1,1 +1,1 @@
-("5.3.6" ("e50ff1586532be917eaa9cbe6375afe1db05f3e7" . "84a77c2fe0a6abcf255e582b0fd4c6662a1cfb2b") (collects #"eopl" #"main.rkt") (collects #"eopl" #"lang" #"reader.rkt"))
+("5.3.6" ("e50ff1586532be917eaa9cbe6375afe1db05f3e7" . "718d6a1c1af786bda0faa0c048960790c1241e0a") (collects #"eopl" #"main.rkt") (collects #"errortrace" #"errortrace-key.rkt") (collects #"eopl" #"lang" #"reader.rkt"))

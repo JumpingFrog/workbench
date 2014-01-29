@@ -44,13 +44,12 @@
              (value-of letexp (extend-env-list idd (map (lambda (exp) (value-of exp env)) idexp) env))
     )
     (proc-exp (id exp)
-              
+             (<-ExpVal (procedure id exp env))
     )
     (slet-exp (idd idexp letexp)
               (value-of letexp (fold (lambda (p e)
                                        (extend-env (car p) (value-of (cadr p) e) e)) 
                                         env (zip idd idexp)))
-;(zip idd idexp)
     )
     (empty-list-exp ()
              (->ExpVal '())
@@ -60,6 +59,11 @@
     )
   )
 )
+
+(define procedure
+(lambda (id exp env)
+       (lambda (val)
+        (value-of exp (extend-env id val env)))))
 
 (define unary-ops (list (cons "minus" -) 
                         (cons "zero?" zero?)

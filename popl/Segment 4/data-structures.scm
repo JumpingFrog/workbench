@@ -11,6 +11,7 @@
   (list-ExpVal    (a-list list?))
   (proc-ExpVal    (a-proc procedure?))
   )
+
 ;; Injection function for taking a scheme value into the set of Expressed Values
 (define (->ExpVal x)
   (cond
@@ -38,6 +39,13 @@
     )
   )
 
+(define (ExpVal->proc v)
+  (cases ExpVal v
+    (proc-ExpVal (s) s)
+    (else (ExpVal-extractor-error 'Procedure v))
+    )
+  )
+
 ; ExpVal->list : ExpVal -> list
 (define (ExpVal->list v)
   (cases ExpVal v
@@ -53,6 +61,7 @@
     (number-ExpVal (v) v)
     (bool-ExpVal   (v) v)
     (list-ExpVal   (v) v)
+    (proc-ExpVal   (v) v)
     (else (ExpVal-extractor-error 'Unmatched))
     )
   )

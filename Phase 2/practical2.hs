@@ -46,8 +46,11 @@ sqns rs s = (foldl1 (\p n->sqn p n) rs) s
 itr :: Eq a => RegExp a -> RegExp a
 itr _ [] = (Nothing, [])
 itr r s	| isNothing (fst (r s)) = (Nothing, s)
-		| otherwise = (Just (concat (catMaybes [fst (r s), fst (itr r (snd (r s)))])), snd (itr r (snd (r s))))
+		| otherwise = (Just (concat (catMaybes [fst (r s), fst (itr r (snd (r s)))])), snd (itr r (snd (r s)))) --rewrite with where clause
 --1.8
 lexemes :: Show a => RegExp a -> RegExp a -> [a] -> [[a]]
-lexemes rs ws s = | itr rs
+lexemes _ _ [] = [[]]
+lexemes rs ws s = [maybeToList (fst as)] ++ lexemes rs ws (snd (ws as))
+					where
+						as = (rs s)
 
