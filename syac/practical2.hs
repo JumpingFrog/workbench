@@ -69,4 +69,48 @@ lexemes r w s	| isNothing (fst x)  = error ("Unmatched lexeme token: " ++ (show 
 scanner :: Show a => RegExp a -> RegExp a -> ([a]->b) -> [a] -> [b]
 scanner r w f s = map f (lexemes r w s)
 
+--2.1
+isLet :: Char -> Bool --is Letter
+isLet c = c `elem` ['a'..'z']
+
+isDig :: Char -> Bool
+isDig c = c `elem` ['0'..'9']
+
+isWsp :: Char -> Bool
+isWsp c = c `elem` " \n\r\t"
+
+--2.2
+nspace :: RegExp Char
+nspace c = range isWsp c
+
+nletter :: RegExp Char
+nletter c = range isLet c
+
+ndigit :: RegExp Char
+ndigit c = range isDig c
+--2.3
+nword :: RegExp Char
+nword c = itr nletter c 
+
+nnumeral :: RegExp Char
+nnumeral c = itr nnumeral c
+
+nwhitespace :: RegExp Char
+nwhitespace c = itr nspace c
+--3.1
+data Token = TRUE | FALSE | EQUALS | LESS | PLUS | MINUS | TIMES | ASSIGN | SEQ |
+			 SKIP | IF | THEN | ELSE | WHILE  | LEFT | RIGHT | VAR String | NUM String
+
+--3.2
+nr2t :: String -> Token
+nr2t "true" = TRUE
+nr2t "false" = FALSE
+nr2t "=" = EQUALS
+nr2t "<" = LESS
+nr2t "+" = PLUS
+nr2t "-" = MINUS
+
+
+		
+
 

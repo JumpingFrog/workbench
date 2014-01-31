@@ -57,9 +57,8 @@
               ((<-ExpVal (apply-env env id)) (value-of exp env)) ;applying and extracting id gives a lambda (val) so apply exp to it.
     )
     (letp-exp (ids args exps lexp) ;procedure let
-              (value-of lexp (fold (lambda (p e)
-                               (extend-env (car p) (cadr p) e)) 
-                                env (zip ids (->ExpVal (map (lambda (p) (procedure (car p) (cadr p) env)) (zip args exps))))))
+              (value-of lexp (fold (lambda (p e) (extend-env (car p) (->ExpVal (procedure (car (cadr p)) (cadr (cadr p)) e)))
+                                env (zip ids (zip args exps)))))
     )
     ; ("letp" (arbno identifier "(" identifier ")" "=" expression ",") "in" expression) letp-exp)
     ;lists
