@@ -1,4 +1,5 @@
 import Data.Maybe
+import Data.String.Utils
 --1.1
 type RegExp a = [a] -> (Maybe [a], [a])
 

@@ -1,0 +1,52 @@
+Pascal-FC post-mortem report on ex5
+- Interpreter Version P5.4 - 
+Abnormal halt in process procs[3] with pc = 12
+Reason:   deadlock
+
+
+----------
+Main program
+
+Status:  awaiting process termination
+
+
+----------
+Process procs[1]
+
+Status:  active
+pc = 12
+
+Process suspended on:
+
+chopsticks[2] (semaphore)
+
+
+----------
+Process procs[2]
+
+Status:  active
+pc = 12
+
+Process suspended on:
+
+chopsticks[3] (semaphore)
+
+
+----------
+Process procs[3]
+
+Status:  active
+pc = 12
+
+Process suspended on:
+
+chopsticks[1] (semaphore)
+
+
+
+==========
+Global variables
+
+i          = 3
+say        = 1
+turn       = 0

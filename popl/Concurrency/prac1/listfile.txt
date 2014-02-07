@@ -5,55 +5,43 @@ G L Davies  &  A Burns, University of York
 
 Compiler listing
 
-    1     0 
-    2     0 
-    3     0 program update2;
-    4     0    var  C : integer;
-    5     0    var flag1, flag2, flag3 : boolean;
-    6     0 
-    7     0 process P1;
-    8     0 var l : integer;
-    9     0 begin
-   10     0    for l := 1 to 20 do
-   11     4       begin
-   12     4          flag1 := true;
-   13     7          while flag2 and flag3 do
-   14    11             begin
-   15    11                null;  (* This is known as a busy-wait loop *)
-   16    11                flag3 := true;
-   17    14             end;
-   18    15          C := C + 1;
-   19    20          flag1 := false;
-   20    23       end;
-   21    24 end;
-   22    25 
-   23    25 process P2;
-   24    25 var l : integer;
-   25    25 begin
-   26    25    for l := 1 to 20 do
-   27    29       begin
-   28    29          flag2 := true;
-   29    32          while flag1 and not flag3 do
-   30    37             begin
-   31    37                null;  (* This is known as a busy-wait loop *)
-   32    37                flag3 := false;
-   33    40             end;        
-   34    41          C := C + 1;
-   35    46          flag2 := false;
-   36    49       end;
-   37    50 end;
-   38    51 
-   39    51 begin
-   40    51    C := 0;
-   41    54    flag1 := false;
-   42    57    flag2 := true;
-   43    60    flag3 := false;
-   44    63    cobegin
-   45    64       P1;
-   46    68       P2;
-   47    72    coend;
-   48    73    write(C)
-   49    75 end.
+    1     0 program ex5;
+    2     0    var turn : integer;
+    3     0       chopsticks : array[1..3] of semaphore;
+    4     0       say : semaphore;
+    5     0 
+    6     0 process type Philosopher(o: integer);
+    7     0 begin
+    8     0    repeat
+    9     0       begin
+   10     0          wait(chopsticks[o]);
+   11     4          wait(chopsticks[(o mod 3) + 1]);
+   12    12          wait(say); (*make speaking mutex *)
+   13    14          writeln(o, ' is eating.');
+   14    19          signal(say);
+   15    21          sleep(1);
+   16    23          signal(chopsticks[o]);
+   17    27          signal(chopsticks[(o mod 3) + 1]);
+   18    35          wait(say);
+   19    37          writeln(o, ' is thinking.');
+   20    42          signal(say);
+   21    44          sleep(1);
+   22    46       end;
+   23    46    forever;
+   24    47 end;
+   25    48 
+   26    48 var procs : array[1..3] of Philosopher;
+   27    48    i : integer;
+   28    48 begin
+   29    48    for i := 1 to 3 do
+   30    52       initial(chopsticks[i], 1);
+   31    59    initial(say, 1);
+   32    63    cobegin
+   33    64       procs[1](1);
+   34    71       procs[2](2);
+   35    78       procs[3](3);
+   36    85    coend;
+   37    86 end.
 
 
 
@@ -61,94 +49,102 @@ Symbol table
 
     name       link      objekt       type         ref      nrm  lev  adr  aux
 
- 45 _main        44     procedure   notyp           2      True    0   51    0
+ 45 _main        44     procedure   notyp           2      True    0   48    0
  46 any           0     variable    synch           0      True    1    5    0
- 47 c            46     variable    integer         0      True    1    5    0
- 48 flag1        47     variable    boolean         0      True    1    6    0
- 49 flag2        48     variable    boolean         0      True    1    7    0
- 50 flag3        49     variable    boolean         0      True    1    8    0
- 51 p1           50     variable    process         3      True    1    9    0
- 52 $            51     type id     process         3      True    1    0    0
- 53 l             0     variable    integer         0      True    2    5    0
- 54 p2           52     variable    process         4      True    1   10    0
- 55 $            54     type id     process         4      True    1   25    0
- 56 l             0     variable    integer         0      True    2    5    0
+ 47 turn         46     variable    integer         0      True    1    5    0
+ 48 chopsticks   47     variable    array           1      True    1    6    0
+ 49 say          48     variable    semaphore       0      True    1    9    0
+ 50 philosophe   49     type id     process         3      True    1    0    0
+ 51 o             0     variable    integer         0      True    2    5    0
+ 52 procs        50     variable    array           2      True    1   10    0
+ 53 i            52     variable    integer         0      True    1   13    0
 
 Generated P-code
 
-    0     ldadr        2         5          ;9
-    1     ldcon.i      0         1          ;10
-    2     ldcon.i      0        20          ;10
-    3     for1u.i      0        24          ;10
+    0     ldadr        1         6          ;10
+    1     ldval.i      2         5          ;10
+    2     ixary.i      0         1          ;10
+    3     swait        0         0          ;10
     4     ldadr        1         6          ;11
-    5     ldcon.b      0         1          ;12
-    6     store.b      0         0          ;12
-    7     ldval.b      1         7          ;13
-    8     ldval.b      1         8          ;13
-    9     andop.b      0         0          ;13
-   10     jmpiz        0        15          ;13
-   11     ldadr        1         8          ;15
-   12     ldcon.b      0         1          ;16
-   13     store.b      0         0          ;16
-   14     jmpuc        0         7          ;16
-   15     ldadr        1         5          ;17
-   16     ldval.i      1         5          ;18
-   17     ldcon.i      0         1          ;18
-   18     addop.i      0         0          ;18
-   19     store.i      0         0          ;18
-   20     ldadr        1         6          ;18
-   21     ldcon.b      0         0          ;19
-   22     store.b      0         0          ;19
-   23     for2u.i      0         4          ;19
-   24     rproc        1         0          ;20
-   25     ldadr        2         5          ;25
-   26     ldcon.i      0         1          ;26
-   27     ldcon.i      0        20          ;26
-   28     for1u.i      0        50          ;26
-   29     ldadr        1         7          ;27
-   30     ldcon.b      0         1          ;28
-   31     store.b      0         0          ;28
-   32     ldval.b      1         6          ;29
-   33     ldval.b      1         8          ;29
-   34     notop.b      0         0          ;29
-   35     andop.b      0         0          ;29
-   36     jmpiz        0        41          ;29
-   37     ldadr        1         8          ;31
-   38     ldcon.b      0         0          ;32
-   39     store.b      0         0          ;32
-   40     jmpuc        0        32          ;32
-   41     ldadr        1         5          ;33
-   42     ldval.i      1         5          ;34
-   43     ldcon.i      0         1          ;34
-   44     addop.i      0         0          ;34
-   45     store.i      0         0          ;34
-   46     ldadr        1         7          ;34
-   47     ldcon.b      0         0          ;35
-   48     store.b      0         0          ;35
-   49     for2u.i      0        29          ;35
-   50     rproc        1         0          ;36
-   51     ldadr        1         5          ;39
-   52     ldcon.i      0         0          ;40
-   53     store.i      0         0          ;40
-   54     ldadr        1         6          ;40
-   55     ldcon.b      0         0          ;41
-   56     store.b      0         0          ;41
-   57     ldadr        1         7          ;41
-   58     ldcon.b      0         1          ;42
-   59     store.b      0         0          ;42
-   60     ldadr        1         8          ;42
-   61     ldcon.b      0         0          ;43
-   62     store.b      0         0          ;43
-   63     cobeg        0         0          ;43
-   64     mkstk        1        52          ;44
-   65     ldadr        1         9          ;44
-   66     procv        0         0          ;44
-   67     calls        1         4          ;44
-   68     mkstk        1        55          ;45
-   69     ldadr        1        10          ;45
-   70     procv        0         0          ;45
-   71     calls        1         4          ;45
-   72     coend        0         0          ;46
-   73     ldval.i      1         5          ;48
-   74     wrval.i      0         0          ;48
-   75     stopx        0         0          ;48
+    5     ldval.i      2         5          ;11
+    6     ldcon.i      0         3          ;11
+    7     modop.i      0         0          ;11
+    8     ldcon.i      0         1          ;11
+    9     addop.i      0         0          ;11
+   10     ixary.i      0         1          ;11
+   11     swait        0         0          ;11
+   12     ldadr        1         9          ;12
+   13     swait        0         0          ;12
+   14     ldval.i      2         5          ;13
+   15     wrval.i      0         0          ;13
+   16     ldcon.i      0        11          ;13
+   17     wrstr        0         0          ;13
+   18     wrlin        0         0          ;13
+   19     ldadr        1         9          ;14
+   20     signl        0         0          ;14
+   21     ldcon.i      0         1          ;15
+   22     sleep        0         0          ;15
+   23     ldadr        1         6          ;16
+   24     ldval.i      2         5          ;16
+   25     ixary.i      0         1          ;16
+   26     signl        0         0          ;16
+   27     ldadr        1         6          ;17
+   28     ldval.i      2         5          ;17
+   29     ldcon.i      0         3          ;17
+   30     modop.i      0         0          ;17
+   31     ldcon.i      0         1          ;17
+   32     addop.i      0         0          ;17
+   33     ixary.i      0         1          ;17
+   34     signl        0         0          ;17
+   35     ldadr        1         9          ;18
+   36     swait        0         0          ;18
+   37     ldval.i      2         5          ;19
+   38     wrval.i      0         0          ;19
+   39     ldcon.i      0        13          ;19
+   40     wrstr        0        11          ;19
+   41     wrlin        0         0          ;19
+   42     ldadr        1         9          ;20
+   43     signl        0         0          ;20
+   44     ldcon.i      0         1          ;21
+   45     sleep        0         0          ;21
+   46     jmpuc        0         0          ;22
+   47     rproc        1         0          ;23
+   48     ldadr        1        13          ;28
+   49     ldcon.i      0         1          ;29
+   50     ldcon.i      0         3          ;29
+   51     for1u.i      0        59          ;29
+   52     ldadr        1         6          ;30
+   53     ldval.i      1        13          ;30
+   54     ixary.i      0         1          ;30
+   55     ldcon.i      0         1          ;30
+   56     lobnd.i      0         0          ;30
+   57     sinit        0         0          ;30
+   58     for2u.i      0        52          ;30
+   59     ldadr        1         9          ;31
+   60     ldcon.i      0         1          ;31
+   61     lobnd.i      0         0          ;31
+   62     sinit        0         0          ;31
+   63     cobeg        0         0          ;31
+   64     mkstk        1        50          ;32
+   65     ldadr        1        10          ;32
+   66     ldcon.i      0         1          ;33
+   67     ixary.i      0         2          ;33
+   68     procv        0         0          ;33
+   69     ldcon.i      0         1          ;33
+   70     calls        1         5          ;33
+   71     mkstk        1        50          ;33
+   72     ldadr        1        10          ;33
+   73     ldcon.i      0         2          ;34
+   74     ixary.i      0         2          ;34
+   75     procv        0         0          ;34
+   76     ldcon.i      0         2          ;34
+   77     calls        1         5          ;34
+   78     mkstk        1        50          ;34
+   79     ldadr        1        10          ;34
+   80     ldcon.i      0         3          ;35
+   81     ixary.i      0         2          ;35
+   82     procv        0         0          ;35
+   83     ldcon.i      0         3          ;35
+   84     calls        1         5          ;35
+   85     coend        0         0          ;35
+   86     stopx        0         0          ;36

@@ -1,0 +1,37 @@
+program ex5;
+	var turn : integer;
+		chopsticks : array[1..3] of semaphore;
+		say : semaphore;
+
+process type Philosopher(o: integer);
+begin
+	repeat
+		begin
+			wait(chopsticks[o]);
+			wait(chopsticks[(o mod 3) + 1]);
+			wait(say); (*make speaking mutex *)
+			writeln(o, ' is eating.');
+			signal(say);
+			sleep(1);
+			signal(chopsticks[o]);
+			signal(chopsticks[(o mod 3) + 1]);
+			wait(say);
+			writeln(o, ' is thinking.');
+			signal(say);
+			sleep(1);
+		end;
+	forever;
+end;
+
+var procs : array[1..3] of Philosopher;
+	i : integer;
+begin
+	for i := 1 to 3 do
+		initial(chopsticks[i], 1);
+	initial(say, 1);
+	cobegin
+		procs[1](1);
+		procs[2](2);
+		procs[3](3);
+	coend;
+end.
