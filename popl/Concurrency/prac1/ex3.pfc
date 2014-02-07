@@ -1,0 +1,28 @@
+program ex3;
+	var turn : integer;
+
+process  type P(o: integer; c : char);
+var i, j : integer;
+begin
+	for i := 1 to 5 do
+		begin
+			while turn <> o do
+				null;
+			for j := 1 to 4 do
+				begin
+					write(c);
+				end;
+			if turn = 3 then turn := 1 else turn := turn + 1;
+		end;
+end;
+
+var procs : array[1..3] of P;
+
+begin
+	turn := 1;
+	cobegin
+		procs[1](1, 'A');
+		procs[2](2, 'B');
+		procs[3](3, 'C');
+	coend;
+end.
