@@ -1,5 +1,5 @@
 import Data.Maybe
-import Data.String.Utils
+import Data.List
 --1.1
 type RegExp a = [a] -> (Maybe [a], [a])
 
@@ -65,14 +65,16 @@ itr _ [] = (Nothing, [])
 itr r s	| isNothing (fst (r s)) = (Nothing, s)
 		| otherwise = (Just (concat (catMaybes [fst (r s), fst (itr r (snd (r s)))])), snd (itr r (snd (r s)))) --rewrite with where clause
 --1.8
+--explode :: Eq a => [a] -> [a] -> [[a]] --explodes a string on certain chars
+
 lexemes :: Show a => RegExp a -> RegExp a -> [a] -> [[a]] --N.B. Does not handle leading white space.
 lexemes _ _ [] = [] --base case, entire string consumed.
-lexemes r w s	| isNothing (fst x)  = error ("Unmatched lexeme token: " ++ (show (snd x)))
+lexemes r w s	| isNothing (fst x)  = error ("Unmatched lexeme token: " ++ (show (snd x))) --TODO: Nicer errors.
 				| otherwise = (maybeToList(fst x)) ++ lexemes r w (snd (w(snd x)))
 				where x = (r s)
 --1.9
 scanner :: Show a => RegExp a -> RegExp a -> ([a]->b) -> [a] -> [b]
-scanner r w f s = map f (lexemes r w s)
+scanner r w f s = map f (lexemes r w s) 
 
 --2.1
 isLet :: Char -> Bool --is Letter
@@ -159,13 +161,15 @@ nr2t s	| (fst (nnumeral s)) == (Just s) = NUM (s2n s)
 
 --4.1
 nregexp :: RegExp Char
-nregexp = alt2 [(sqns "true"), (sqns "false"), (sqns "="), (sqns "<"), (sqns "+"), (sqns "-"), (sqns "*"), (sqns ":="), (sqns "skip"), (sqns ";"), 
-				(sqns "if"), (sqns "then"), (sqns "else"), (sqns "while"), (sqns "("), (sqns ")"), nword, nnumeral]
+nregexp = alt2 [(sqns "="), (sqns "<"), (sqns "+"), (sqns "-"), (sqns "*"), (sqns ":="), (sqns ";"),  (sqns "("), (sqns ")"), nword, nnumeral]
 --4.2
 nscanner :: String -> [Token]
 nscanner s = scanner nregexp nwhitespace nr2t s
 
-
+t1 = "while skipy < 100 (skipy := skipy + 10; skip)"
+t2 = "while:=\nif bif skipy="
+t3 = "abc::==def:=:="
+t4 = "if % = $ then 0 else 1"
 		
 
 

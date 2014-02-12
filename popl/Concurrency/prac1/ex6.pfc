@@ -1,0 +1,22 @@
+program ex6;
+
+monitor barrier;
+	export wait;
+	var canRelease : condition;
+
+	procedure wait;
+	begin
+		delay(canRelease);
+	end;
+	
+	procedure release;
+	begin
+		while not empty(canRelease) do
+			resume(canRelease);
+end;
+
+
+
+begin
+
+end.
