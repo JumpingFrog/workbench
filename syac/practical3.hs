@@ -42,6 +42,14 @@ t2b = "-(T*(-F*))"
 -- v ::= [a-z]+
 --
 --1. Remove ambiguity:
+--p5 ::= (p) | T | F | v
+--p4 ::= p5 | -p4
+--p3 ::= p4 | p3*p4
+--p2 ::= p3 | p2+p3
+--p1 ::= p2 | p2>p1
+--p  ::= p1 | p=p1
 --
+--v ::= (v) | [a-z]+
 --
+--2. Left factoring.
 
