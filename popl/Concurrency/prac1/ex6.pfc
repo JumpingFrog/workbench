@@ -1,22 +1,79 @@
 program ex6;
+const num = 5;
+var say : semaphore;
 
-monitor barrier;
-	export wait;
+monitor Barrier;
+	export wait, release;
 	var canRelease : condition;
+		toRelease : integer; (*Number of processes to release*)
+		waiting : integer; (*Number of waiting processes*)
+		releasing : boolean; (*release fired?*)
 
 	procedure wait;
 	begin
-		delay(canRelease);
+		writeln('Waiting: ', waiting);
+		if (not releasing) then (*wait the process if not releasing*)
+		begin
+			waiting := waiting + 1;
+			delay(canRelease);
+		end;
+		
+		if releasing and (toRelease = 0) then
+		begin
+			waiting := waiting + 1;
+			delay(canRelease);
+			releasing := false;
+		end;
+
+		if releasing and (toRelease > 0) then (*More to release*)
+		begin
+			toRelease := toRelease - 1;
+			resume(canRelease);
+		end;
 	end;
 	
 	procedure release;
 	begin
-		while not empty(canRelease) do
+		releasing := true;
+		toRelease := num;
+		if waiting < num then (*enough are waiting, start releasing*)
+		begin
 			resume(canRelease);
+		end;
+	end;
+
+	begin
+		releasing := false;
+		waiting := 0;
+	end;
+
+process type P(o: integer);
+begin
+	wait(say);
+	writeln(o, ' is waiting.');
+	signal(say);
+	Barrier.wait;
+	wait(say);
+	writeln(o, ' is released.');
+	signal(say);
 end;
 
+process Release;
+begin
+	wait(say);
+	writeln('Releasing');
+	signal(say);
+	Barrier.release;
+end;
 
+var procs : array[1..10] of P;
+	i : integer;
 
 begin
-
+	initial(say, 1);
+	cobegin
+		for i:= 1 to 10 do
+			procs[i](i);
+		Release;
+	coend;
 end.

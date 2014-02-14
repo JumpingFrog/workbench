@@ -5,43 +5,85 @@ G L Davies  &  A Burns, University of York
 
 Compiler listing
 
-    1     0 program ex5;
-    2     0    const max = 20;
-    3     0    var turn : integer;
-    4     0       chopsticks : array[1..max] of semaphore;
-    5     0       say : semaphore;
-    6     0 
-    7     0 process type Philosopher(o: integer);
-    8     0 begin
-    9     0    repeat
-   10     0       begin
-   11     0          wait(chopsticks[o]);
-   12     4          wait(chopsticks[(o mod max) + 1]);
-   13    12          wait(say); (*make speaking mutex *)
-   14    14          writeln(o, ' is eating.');
-   15    19          signal(say);
-   16    21          (*sleep(1);*)
-   17    21          signal(chopsticks[o]);
-   18    25          signal(chopsticks[(o mod max) + 1]);
-   19    33          wait(say);
-   20    35          writeln(o, ' is thinking.');
-   21    40          signal(say);
-   22    42          (*sleep(1);*)
-   23    42       end;
-   24    42    forever;
-   25    43 end;
-   26    44 
-   27    44 var procs : array[1..max] of Philosopher;
-   28    44    i : integer;
-   29    44 begin
-   30    44    for i := 1 to max do
-   31    48       initial(chopsticks[i], 1);
-   32    55    initial(say, 1);
-   33    59    cobegin
-   34    60       for i:= 1 to max do
-   35    64          procs[i](i);
-   36    72    coend;
-   37    73 end.
+    1     0 program ex6;
+    2     0 const num = 5;
+    3     0 var say : semaphore;
+    4     0 
+    5     0 monitor Barrier;
+    6     0    export wait, release;
+    7     0    var canRelease : condition;
+    8     0       toRelease : integer; (*Number of processes to release*)
+    9     0       waiting : integer; (*Number of waiting processes*)
+   10     0       releasing : boolean; (*release fired?*)
+   11     0 
+   12     0    procedure wait;
+   13     0    begin
+   14     0       writeln('Waiting: ', waiting);
+   15     5       if (not releasing) then (*wait the process if not releasing*)
+   16     8       begin
+   17     8          waiting := waiting + 1;
+   18    13          delay(canRelease);
+   19    15       end;
+   20    15       
+   21    15       if releasing and (toRelease = 0) then
+   22    21       begin
+   23    21          waiting := waiting + 1;
+   24    26          delay(canRelease);
+   25    28          releasing := false;
+   26    31       end;
+   27    31 
+   28    31       if releasing and (toRelease > 0) then (*More to release*)
+   29    37       begin
+   30    37          toRelease := toRelease - 1;
+   31    42          resume(canRelease);
+   32    44       end;
+   33    44    end;
+   34    45    
+   35    45    procedure release;
+   36    45    begin
+   37    45       releasing := true;
+   38    48       toRelease := num;
+   39    51       if waiting < num then (*enough are waiting, start releasing*)
+   40    55       begin
+   41    55          resume(canRelease);
+   42    57       end;
+   43    57    end;
+   44    58 
+   45    58    begin
+   46    59       releasing := false;
+   47    62       waiting := 0;
+   48    65    end;
+   49    66 
+   50    66 process type P(o: integer);
+   51    66 begin
+   52    66    wait(say);
+   53    68    writeln(o, ' is waiting.');
+   54    73    signal(say);
+   55    75    Barrier.wait;
+   56    80    wait(say);
+   57    82    writeln(o, ' is released.');
+   58    87    signal(say);
+   59    89 end;
+   60    90 
+   61    90 process Release;
+   62    90 begin
+   63    90    wait(say);
+   64    92    writeln('Releasing');
+   65    95    signal(say);
+   66    97    Barrier.release;
+   67   102 end;
+   68   103 
+   69   103 var procs : array[1..10] of P;
+   70   103    i : integer;
+   71   103 
+   72   103 begin
+   73   104    initial(say, 1);
+   74   108    cobegin
+   75   109       for i:= 1 to 10 do
+   76   113          procs[i](i);
+   77   121       Release;
+   78   125    coend;
+   79   126 end.
 
 
 
@@ -49,90 +91,150 @@ Symbol table
 
     name       link      objekt       type         ref      nrm  lev  adr  aux
 
- 45 _main        44     procedure   notyp           2      True    0   44    0
+ 45 _main        44     procedure   notyp           2      True    0  103    0
  46 any           0     variable    synch           0      True    1    5    0
- 47 max          46     constant    integer         0     False    1   20    0
- 48 turn         47     variable    integer         0      True    1    5    0
- 49 chopsticks   48     variable    array           1      True    1    6    0
- 50 say          49     variable    semaphore       0      True    1   26    0
- 51 philosophe   50     type id     process         3      True    1    0    0
- 52 o             0     variable    integer         0      True    2    5    0
- 53 procs        51     variable    array           2      True    1   27    0
- 54 i            53     variable    integer         0      True    1   47    0
+ 47 num          46     constant    integer         0     False    1    5    0
+ 48 say          47     variable    semaphore       0      True    1    5    0
+ 49 barrier      48     variable    monvar          3      True    1    6   58
+ 50 canrelease    0     variable    condition       0      True    1    8    0
+ 51 torelease    50     variable    integer         0      True    1    9    0
+ 52 waiting      51     variable    integer         0      True    1   10    0
+ 53 releasing    52     variable    boolean         0      True    1   11    0
+ 54 wait         53     monproc     notyp           4      True    2    0    0
+ 55 release      54     monproc     notyp           5      True    2   45    0
+ 56 p            49     type id     process         6      True    1   66    0
+ 57 o             0     variable    integer         0      True    2    5    0
+ 58 release      56     variable    process         7      True    1   12    0
+ 59 $            58     type id     process         7      True    1   90    0
+ 60 procs        59     variable    array           1      True    1   13    0
+ 61 i            60     variable    integer         0      True    1   23    0
 
 Generated P-code
 
-    0     ldadr        1         6          ;11
-    1     ldval.i      2         5          ;11
-    2     ixary.i      0         1          ;11
-    3     swait        0         0          ;11
-    4     ldadr        1         6          ;12
-    5     ldval.i      2         5          ;12
-    6     ldcon.i      0        20          ;12
-    7     modop.i      0         0          ;12
-    8     ldcon.i      0         1          ;12
-    9     addop.i      0         0          ;12
-   10     ixary.i      0         1          ;12
-   11     swait        0         0          ;12
-   12     ldadr        1        26          ;13
-   13     swait        0         0          ;13
-   14     ldval.i      2         5          ;14
-   15     wrval.i      0         0          ;14
-   16     ldcon.i      0        11          ;14
-   17     wrstr        0         0          ;14
-   18     wrlin        0         0          ;14
-   19     ldadr        1        26          ;15
-   20     signl        0         0          ;15
-   21     ldadr        1         6          ;17
-   22     ldval.i      2         5          ;17
-   23     ixary.i      0         1          ;17
-   24     signl        0         0          ;17
-   25     ldadr        1         6          ;18
-   26     ldval.i      2         5          ;18
-   27     ldcon.i      0        20          ;18
-   28     modop.i      0         0          ;18
-   29     ldcon.i      0         1          ;18
-   30     addop.i      0         0          ;18
-   31     ixary.i      0         1          ;18
-   32     signl        0         0          ;18
-   33     ldadr        1        26          ;19
-   34     swait        0         0          ;19
-   35     ldval.i      2         5          ;20
-   36     wrval.i      0         0          ;20
-   37     ldcon.i      0        13          ;20
-   38     wrstr        0        11          ;20
-   39     wrlin        0         0          ;20
-   40     ldadr        1        26          ;21
-   41     signl        0         0          ;21
-   42     jmpuc        0         0          ;23
-   43     rproc        1         0          ;24
-   44     ldadr        1        47          ;29
-   45     ldcon.i      0         1          ;30
-   46     ldcon.i      0        20          ;30
-   47     for1u.i      0        55          ;30
-   48     ldadr        1         6          ;31
-   49     ldval.i      1        47          ;31
-   50     ixary.i      0         1          ;31
-   51     ldcon.i      0         1          ;31
-   52     lobnd.i      0         0          ;31
-   53     sinit        0         0          ;31
-   54     for2u.i      0        48          ;31
-   55     ldadr        1        26          ;32
-   56     ldcon.i      0         1          ;32
-   57     lobnd.i      0         0          ;32
-   58     sinit        0         0          ;32
-   59     cobeg        0         0          ;32
-   60     ldadr        1        47          ;33
-   61     ldcon.i      0         1          ;34
-   62     ldcon.i      0        20          ;34
-   63     for1u.i      0        72          ;34
-   64     mkstk        1        51          ;34
-   65     ldadr        1        27          ;34
-   66     ldval.i      1        47          ;35
-   67     ixary.i      0         2          ;35
-   68     procv        0         0          ;35
-   69     ldval.i      1        47          ;35
-   70     calls        1         5          ;35
-   71     for2u.i      0        64          ;35
-   72     coend        0         0          ;35
-   73     stopx        0         0          ;36
+    0     ldcon.i      0         9          ;14
+    1     wrstr        0         0          ;14
+    2     ldval.i      1        10          ;14
+    3     wrval.i      0         0          ;14
+    4     wrlin        0         0          ;14
+    5     ldval.b      1        11          ;15
+    6     notop.b      0         0          ;15
+    7     jmpiz        0        15          ;15
+    8     ldadr        1        10          ;16
+    9     ldval.i      1        10          ;17
+   10     ldcon.i      0         1          ;17
+   11     addop.i      0         0          ;17
+   12     store.i      0         0          ;17
+   13     ldadr        1         8          ;18
+   14     delay        0         0          ;18
+   15     ldval.b      1        11          ;21
+   16     ldval.i      1         9          ;21
+   17     ldcon.i      0         0          ;21
+   18     releq.i      0         0          ;21
+   19     andop.b      0         0          ;21
+   20     jmpiz        0        31          ;21
+   21     ldadr        1        10          ;22
+   22     ldval.i      1        10          ;23
+   23     ldcon.i      0         1          ;23
+   24     addop.i      0         0          ;23
+   25     store.i      0         0          ;23
+   26     ldadr        1         8          ;24
+   27     delay        0         0          ;24
+   28     ldadr        1        11          ;24
+   29     ldcon.b      0         0          ;25
+   30     store.b      0         0          ;25
+   31     ldval.b      1        11          ;28
+   32     ldval.i      1         9          ;28
+   33     ldcon.i      0         0          ;28
+   34     relgt.i      0         0          ;28
+   35     andop.b      0         0          ;28
+   36     jmpiz        0        44          ;28
+   37     ldadr        1         9          ;29
+   38     ldval.i      1         9          ;30
+   39     ldcon.i      0         1          ;30
+   40     subop.i      0         0          ;30
+   41     store.i      0         0          ;30
+   42     ldadr        1         8          ;31
+   43     resum        0         0          ;31
+   44     rproc        0         0          ;32
+   45     ldadr        1        11          ;36
+   46     ldcon.b      0         1          ;37
+   47     store.b      0         0          ;37
+   48     ldadr        1         9          ;37
+   49     ldcon.i      0         5          ;38
+   50     store.i      0         0          ;38
+   51     ldval.i      1        10          ;39
+   52     ldcon.i      0         5          ;39
+   53     rellt.i      0         0          ;39
+   54     jmpiz        0        57          ;39
+   55     ldadr        1         8          ;41
+   56     resum        0         0          ;41
+   57     rproc        0         0          ;42
+   58     prsel        0         0          ;43
+   59     ldadr        1        11          ;45
+   60     ldcon.b      0         0          ;46
+   61     store.b      0         0          ;46
+   62     ldadr        1        10          ;46
+   63     ldcon.i      0         0          ;47
+   64     store.i      0         0          ;47
+   65     mretn        0         0          ;47
+   66     ldadr        1         5          ;52
+   67     swait        0         0          ;52
+   68     ldval.i      2         5          ;53
+   69     wrval.i      0         0          ;53
+   70     ldcon.i      0        12          ;53
+   71     wrstr        0         9          ;53
+   72     wrlin        0         0          ;53
+   73     ldadr        1         5          ;54
+   74     signl        0         0          ;54
+   75     ldadr        1         6          ;55
+   76     enmon        0         0          ;55
+   77     mkstk        0        54          ;55
+   78     calls        0         4          ;55
+   79     exmon        0         0          ;55
+   80     ldadr        1         5          ;56
+   81     swait        0         0          ;56
+   82     ldval.i      2         5          ;57
+   83     wrval.i      0         0          ;57
+   84     ldcon.i      0        13          ;57
+   85     wrstr        0        21          ;57
+   86     wrlin        0         0          ;57
+   87     ldadr        1         5          ;58
+   88     signl        0         0          ;58
+   89     rproc        1         0          ;58
+   90     ldadr        1         5          ;63
+   91     swait        0         0          ;63
+   92     ldcon.i      0         9          ;64
+   93     wrstr        0        34          ;64
+   94     wrlin        0         0          ;64
+   95     ldadr        1         5          ;65
+   96     signl        0         0          ;65
+   97     ldadr        1         6          ;66
+   98     enmon        0         0          ;66
+   99     mkstk        0        55          ;66
+  100     calls        0         4          ;66
+  101     exmon        0         0          ;66
+  102     rproc        1         0          ;66
+  103     mexec        0        59          ;70
+  104     ldadr        1         5          ;73
+  105     ldcon.i      0         1          ;73
+  106     lobnd.i      0         0          ;73
+  107     sinit        0         0          ;73
+  108     cobeg        0         0          ;73
+  109     ldadr        1        23          ;74
+  110     ldcon.i      0         1          ;75
+  111     ldcon.i      0        10          ;75
+  112     for1u.i      0       121          ;75
+  113     mkstk        1        56          ;75
+  114     ldadr        1        13          ;75
+  115     ldval.i      1        23          ;76
+  116     ixary.i      0         1          ;76
+  117     procv        0         0          ;76
+  118     ldval.i      1        23          ;76
+  119     calls        1         5          ;76
+  120     for2u.i      0       113          ;76
+  121     mkstk        1        59          ;76
+  122     ldadr        1        12          ;76
+  123     procv        0         0          ;76
+  124     calls        1         4          ;76
+  125     coend        0         0          ;77
+  126     stopx        0         0          ;78

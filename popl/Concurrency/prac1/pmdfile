@@ -1,7 +1,7 @@
-Pascal-FC post-mortem report on ex5
+Pascal-FC post-mortem report on ex6
 - Interpreter Version P5.4 - 
-Abnormal halt in process procs[11] with pc = 8
-Reason:   statement limit of 200000 reached (possible livelock)
+Abnormal halt on termination of process procs[1]
+Reason:   deadlock
 
 
 ----------
@@ -13,215 +13,97 @@ Status:  awaiting process termination
 ----------
 Process procs[1]
 
-Status:  active
-pc = 4
-
-Process suspended on:
-
-chopsticks[1] (semaphore)
+Status:  terminated
 
 
 ----------
 Process procs[2]
 
 Status:  active
-pc = 20
+pc = 28
+
+Process suspended on:
+
+barrier.canrelease (condition)
 
 
 ----------
 Process procs[3]
 
 Status:  active
-pc = 4
+pc = 15
 
 Process suspended on:
 
-chopsticks[3] (semaphore)
+barrier.canrelease (condition)
 
 
 ----------
 Process procs[4]
 
 Status:  active
-pc = 35
+pc = 15
 
 Process suspended on:
 
-say (semaphore)
+barrier.canrelease (condition)
 
 
 ----------
 Process procs[5]
 
-Status:  active
-pc = 14
-
-Process suspended on:
-
-say (semaphore)
+Status:  terminated
 
 
 ----------
 Process procs[6]
 
 Status:  active
-pc = 4
+pc = 15
 
 Process suspended on:
 
-chopsticks[6] (semaphore)
+barrier.canrelease (condition)
 
 
 ----------
 Process procs[7]
 
 Status:  active
-pc = 12
+pc = 15
 
 Process suspended on:
 
-chopsticks[8] (semaphore)
+barrier.canrelease (condition)
 
 
 ----------
 Process procs[8]
 
-Status:  active
-pc = 14
-
-Process suspended on:
-
-say (semaphore)
+Status:  terminated
 
 
 ----------
 Process procs[9]
 
-Status:  active
-pc = 4
-
-Process suspended on:
-
-chopsticks[9] (semaphore)
+Status:  terminated
 
 
 ----------
 Process procs[10]
 
-Status:  active
-pc = 35
-
-Process suspended on:
-
-say (semaphore)
+Status:  terminated
 
 
 ----------
-Process procs[11]
+Process release
 
-Status:  active
-pc = 8
-
-
-----------
-Process procs[12]
-
-Status:  active
-pc = 26
-
-
-----------
-Process procs[13]
-
-Status:  active
-pc = 35
-
-Process suspended on:
-
-say (semaphore)
-
-
-----------
-Process procs[14]
-
-Status:  active
-pc = 14
-
-Process suspended on:
-
-say (semaphore)
-
-
-----------
-Process procs[15]
-
-Status:  active
-pc = 4
-
-Process suspended on:
-
-chopsticks[15] (semaphore)
-
-
-----------
-Process procs[16]
-
-Status:  active
-pc = 12
-
-Process suspended on:
-
-chopsticks[17] (semaphore)
-
-
-----------
-Process procs[17]
-
-Status:  active
-pc = 12
-
-Process suspended on:
-
-chopsticks[18] (semaphore)
-
-
-----------
-Process procs[18]
-
-Status:  active
-pc = 12
-
-Process suspended on:
-
-chopsticks[19] (semaphore)
-
-
-----------
-Process procs[19]
-
-Status:  active
-pc = 12
-
-Process suspended on:
-
-chopsticks[20] (semaphore)
-
-
-----------
-Process procs[20]
-
-Status:  active
-pc = 14
-
-Process suspended on:
-
-say (semaphore)
+Status:  terminated
 
 
 
 ==========
 Global variables
 
-i          = 20
-say        = 0
-turn       = 0
+i          = 10
+say        = 1
