@@ -3,6 +3,7 @@ type Parse t = (Bool, [t])
 type Parser t = [t] -> Parse t
 
 terminal :: Eq t => t -> Parser t --match terminal
+terminal t [] = (False, [])
 terminal t (e:es) 	| t==e = (True, es)
 					| otherwise = (False, (e:es))
 
@@ -14,7 +15,7 @@ infixr 5 +> -- infix, right associative, priority 5
 			where (qf, rf) = f ts
 
 --alternative combinator Choice
-infixl 4 <> -- infix, left associative, priority 4
+infixr 4 <> -- infix, left associative, priority 4
 (<>) :: Eq t => Parser t -> Parser t -> Parser t
 (f <> g) ts	| b = fts --apply f to ts, return if success
 			| otherwise = g ts --else return g to ts.
@@ -104,7 +105,7 @@ t22b = [NEG, LEFT, T, CON, LEFT, NEG, F, CON, RIGHT, RIGHT] --"-(T*(-F*))"
 --
 --v ::= [a-z]+
 nil :: Parser PTok
-nil xs = (False, xs)
+nil xs = (True, xs)
 
 o5 :: Parser PTok
 o5 = ((terminal LEFT) +> o +> (terminal RIGHT)) <> (terminal T) <> (terminal F) <> v2
@@ -116,25 +117,47 @@ o3 :: Parser PTok
 o3 = o4 +> o3'
 
 o3' :: Parser PTok
-o3' = nil <> ((terminal CON) +> o3 +> o2')
+o3' = ((terminal CON) +> o3 +> o2') <> nil
 
 o2 :: Parser PTok
 o2 = o3 +> o2'
 
 o2' :: Parser PTok
-o2' = nil <> ((terminal DIS) +> o3 +> o2')
+o2' = ((terminal DIS) +> o3 +> o2') <> nil
 
 o1 :: Parser PTok
 o1 = o2 +> o1'
 
 o1' :: Parser PTok --aka r
-o1' = nil <> ((terminal IMP) +> o1)
+o1' = ((terminal IMP) +> o1) <> nil
 
 o :: Parser PTok
 o = o1 +> o'
 
 o' :: Parser PTok
-o' = nil <> ((terminal EQL) +> o1 +> o')
+o' =  ((terminal EQL) +> o1 +> o') <> nil
 
-t3a = [NEG, LEFT, Var "x", NEG, NEG, F, CON, LEFT, T, DIS, F, RIGHT, RIGHT]
-t3b = [LEFT, T, CON, NEG, F, CON, NEG]
+t3a = [NEG, LEFT, Var "x", DIS, NEG, NEG, F, CON, LEFT, T, DIS, F, RIGHT, RIGHT]
+t3b = [LEFT, T, CON, NEG, F, CON, NEG, RIGHT]
+t3c = [LEFT, T, CON, NEG, F,RIGHT]
+--4
+--p5 ::= (p) | T | F | v
+--p4 ::= p5 | -p4
+--p3 ::= p4p3`
+--p3`::= ε | *p4p3`
+--p2 ::= p3p2`
+--p2`::= ε | +p3p2`
+--p1 ::= p2r
+--r	 ::= ε | >p1
+--p  ::= p1p`
+--p` ::= ε | =p1p`
+--
+--v ::= [a-z]+
+--First Sets:
+--
+--
+--
+--
+--
+--
+--
