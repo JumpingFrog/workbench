@@ -1,0 +1,65 @@
+Program Barriers;
+
+  monitor Barrier;
+   export 
+      Wait, Release;
+   Var
+     arrived : integer;
+     OkToRelease : condition;
+     releaseOccurred : boolean;
+
+   procedure Wait;
+   begin
+     arrived := arrived + 1;
+     if not releaseOccured or (arrived <> 5) then  
+       delay(OkToRelease);
+     if empty(OkToRelease) then 
+     begin
+       arrived := 0;
+       releaseOccured := false;
+     end
+     else resume(OkToRelease);
+   end;
+
+
+   procedure Release;
+   begin
+     releaseOccurred := true;
+     if arrived = 5 then
+     begin
+       resume(OKToRelease);
+     end;
+   end;
+  begin
+    releaseOccurred := false;
+    arrived := 0;
+  end;
+
+  process type Caller(id : char);
+  begin
+    Barrier.Wait;
+    Writeln('Caller release C', id);
+    Barrier.Wait;
+    Writeln('Caller 2nd round release C', id);
+  end;
+
+  process Releaser;
+  begin
+    Barrier.Release;
+
+    Barrier.Release;
+  end;
+
+  var C1, C2, C3, C4, C5 : Caller;
+
+begin
+  cobegin
+    C1('1');
+    C2('2');
+    C3('3');
+    C4('4');
+    C5('5');
+    Releaser;
+  coend
+
+end.
