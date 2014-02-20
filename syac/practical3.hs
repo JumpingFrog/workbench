@@ -154,10 +154,13 @@ t3c = [LEFT, T, CON, NEG, F,RIGHT]
 --
 --v ::= [a-z]+
 --First Sets:
---
---
---
---
---
---
---
+--first(p5)		= {}
+--first(p4)		= {}
+--first(p3)		= {}
+--first(p3')	= {}
+--first(p2)		= {}
+--first(p2')	= {}
+--first(p1)		= {}
+--first(r)		= {}
+--first(p)		= {}
+--first(p')		= {}
