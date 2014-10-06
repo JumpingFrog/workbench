@@ -154,13 +154,24 @@ t3c = [LEFT, T, CON, NEG, F,RIGHT]
 --
 --v ::= [a-z]+
 --First Sets:
---first(p5)		= {}
---first(p4)		= {}
---first(p3)		= {}
---first(p3')	= {}
---first(p2)		= {}
---first(p2')	= {}
---first(p1)		= {}
---first(r)		= {}
---first(p)		= {}
---first(p')		= {}
+--first(p5)		= {(, T, F, [a-z]}
+--first(p4)		= {-,(, T, F, [a-z]}
+--first(p3)		= {-, (, T, F, [a-z]}
+--first(p3')	= {ε, *}
+--first(p2)		= {-, (, T, F, [a-z]}
+--first(p2')	= {ε, +}
+--first(p1)		= {-, (, T, F, [a-z]}
+--first(r)		= {ε, >}
+--first(p)		= {-, (, T, F, [a-z]}
+--first(p')		= {ε, =}
+--
+--follow(p5)	= {*, +, >, =, ), $}
+--follow(p4)	= {*, +, >, =, ), $}
+--follow(p3)	= {+, >, =, ), $}
+--follow(p3')	= {+, >, =, ), $}
+--follow(p2)	= {>, =, ), $}
+--follow(p2')	= {>, =, ), $}
+--follow(p1)	= {=, ), $}
+--follow(r)		= {=, ), $}
+--follow(p)		= {), $}
+--follow(p')	= {), $}
