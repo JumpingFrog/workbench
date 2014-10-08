@@ -10,7 +10,7 @@ function [loop, w] = myperceptron(dataM,classN,maxL)
 % w - return the weight vector, including bias weight
 
 % You could set a learning rate
-% eta = 0.1
+eta = 0.1;
 
 % get the number of data points and number of variables
 N = size(dataM,2); % number of data points
@@ -44,8 +44,16 @@ while (correct == -1) && (loop < maxL)
     correct = 1; % assume they are to start with...
     
     %% INSERT YOUR CODE HERE TO CALCULATE THE CLASS FOR ALL OBSERVATIONS       
-
-
+    class = w.'*dataM;
+    
+    % Classify output
+    for i = 1:size(class, 2)
+        if (class(i) > 0)
+            class(i) = -1;
+        else
+            class(i) = 1;
+        end
+    end
     % compare calculated class and desired class    
     if any(class ~= classN)
         correct = -1; % set the flag to fail if any don't match
@@ -57,7 +65,15 @@ while (correct == -1) && (loop < maxL)
         %% INSERT YOUR CODE HERE TO ADJUST THE WEIGHTS        
         % You need to select an item of training data i.e a column in the matrix
         % You can do this sequentially or randomly
-        
+        for i = 1:size(classN, 2)
+            if class(1, i) ~= classN(1, i) % Was this item classified correctly
+                if class(1, i) == 1
+                    w = w + eta * dataM(:,i);
+                else
+                    w = w - eta * dataM(:,i);
+                end
+            end
+        end
         % you need to calculate the change to the weights from the data,
         % the class (and the learning rate)
         
@@ -65,3 +81,4 @@ while (correct == -1) && (loop < maxL)
 
     end
 end
+w

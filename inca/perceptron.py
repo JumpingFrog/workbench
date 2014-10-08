@@ -65,7 +65,7 @@ train()
 
 print weights
 x = np.array(map(float, range(0, 10)))
-plt.plot(x, x*(np.asscalar(weights[1])/np.asscalar(weights[2])) + np.asscalar(weights[0]) )
+plt.plot(x, x*(np.asscalar(weights[2])/np.asscalar(weights[1])) + np.asscalar(weights[0]) )
 plt.grid()
 plt.show()
 #plt.plot(x, x*(np.asscalar(weights[1])/np.asscalar(weights[2])) + np.asscalar(weights[0]), "r-")
