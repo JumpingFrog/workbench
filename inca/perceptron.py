@@ -1,7 +1,7 @@
 import csv, io, sys, os, numpy as np, matplotlib.pyplot as plt
 
 #Configuration...
-fname = "training.csv" # raw_input("Enter filename:\r\n")
+fname = "training2.csv" # raw_input("Enter filename:\r\n")
 dimen = 0
 weights = np.mat([1]*3).T
 max_itr = 200

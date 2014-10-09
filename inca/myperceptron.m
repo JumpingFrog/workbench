@@ -1,7 +1,7 @@
 % THIS IS WRITTEN AS A FUNCTION
 % REMOVE THE DECLARATION LINE BELOW TO USE IT AS A SCRIPT
 
-function [loop, w] = myperceptron(dataM,classN,maxL)
+function w = myperceptron(dataM,classN,maxL)
 
 % dataM - matrix containing data, with variables as rows and observations as columns
 % classN - vector (1 x n matrix) of class labels {-1,+1}
@@ -43,6 +43,9 @@ while (correct == -1) && (loop < maxL)
     % check whether patterns are all classified correctly
     correct = 1; % assume they are to start with...
     
+    %% Force bias
+    %w(1) = 0;
+    
     %% INSERT YOUR CODE HERE TO CALCULATE THE CLASS FOR ALL OBSERVATIONS       
     class = w.'*dataM;
     
@@ -81,4 +84,3 @@ while (correct == -1) && (loop < maxL)
 
     end
 end
-w
