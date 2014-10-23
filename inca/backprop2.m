@@ -19,29 +19,34 @@ Xp = [ ones(1,N); X];
 
 % the vector E is going to record the error after each epoch (pass through
 % the training data.)
-E = zeros(i, epochs);
+E = zeros(N, epochs);
 
 for j=1:epochs
     for i=1:N
-        % forward pass
-        % INSERT YOUR CODE HERE
-        
-        
-        
-        Z   =  W.Xp(:, i); % outputs from hidden nodes
-        Zp  =   % ...include bias
-        Y   = V.Z'  % outputs from output nodes
-        
+        % forward pass10
+        % do weighted sum
+        % n.b. weights are row vectors.
+        Z = W * Xp(:, i);
+        Z = arrayfun(@sigmoid, Z);
+        Zp = [1; Z];
+          % outputs from hidden nodes
+        % Zp  =   % ...include bias
+        Y   = V * Zp;   % outputs from output nodes
+        Y = arrayfun(@sigmoid, Y);
         % accumulate total error for epoch j, for plotting
         E(j) = E(j) + sum(sum(Y-D(:,i)).^2/(2 * N)); 
-        
+        %error ber point
+        e = D(:, i) - Y;
         % backward pass
-        Ylg = Y*(ones(1, size(Y, 1)) - Y)   % local gradient at output nodes
-        Zlg =   % local gradient at hidden nodes
-        V   =   % calculate weight change at output layer
-        W   =   % calculate weight change at hidden layer
+        %Local grad at outputs f'(v) = y(1-y)
+        Ylg = e.*(Y.*(1 - Y))
+ 
+        % local gradient at hidden nodes
+        Zlg =  Ylg(Z.*(1 - Z))
+        %V   =   % calculate weight change at output layer
+        %W XS  =   % calculate weight change at hidden layer
     end
 end
 newW = W; newV = V;
-
+    
 
