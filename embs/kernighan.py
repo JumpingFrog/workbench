@@ -1,14 +1,16 @@
+import copy, sys
+
 class Vertex:
 	def __init__(self, name, val):
 		self.partition = val
 		self.name = name
+		self.swapable = True
 
 	def setPartition(self, val):
 		self.partition = val
 
 	def __repr__(self):
-		return '<Vertex name=' + self.name + ' partition=' + self.partition + '>'
-
+		return '<Vertex name=' + self.name + ' partition=' + self.partition + '>\n'
 class Edge:
 	def __init__(self, start, end, weight):
 		self.start = start
@@ -16,7 +18,7 @@ class Edge:
 		self.weight = weight
 
 	def __repr__(self):
-		return '<Edge start=' + self.start.name + ' end=' + self.end.name + ' weight=' + str(self.weight) + '>'
+		return '<Edge start=' + self.start.name + ' end=' + self.end.name + ' weight=' + str(self.weight) + '>\n'
 
 
 vertices = [
@@ -26,23 +28,23 @@ vertices = [
 
 			Vertex('K', '1'), #2
 
-			Vertex('B', '2'), #3
+			Vertex('B', '1'), #3
 
-			Vertex('G', '2'), #4
+			Vertex('G', '1'), #4
 
-			Vertex('L', '2'), #5
+			Vertex('L', '1'), #5
 
-			Vertex('C', '3'), #6
+			Vertex('C', '2'), #6
 
-			Vertex('H', '3'), #7
+			Vertex('H', '2'), #7
 
-			Vertex('I', '3'), #8
+			Vertex('I', '2'), #8
 
-			Vertex('D', '4'), #9
+			Vertex('D', '2'), #9
 
-			Vertex('E', '4'), #10
+			Vertex('E', '2'), #10
 
-			Vertex('F', '4')  #11
+			Vertex('F', '2')  #11
 		]
 
 edges = [
@@ -74,24 +76,74 @@ edges = [
 
 			Edge(vertices[10], vertices[4], 16), 	#c14 - E -> G
 
-			Edge(vertices[4], vertices[5], 8)  		#c15 - G -> L
+			Edge(vertices[4], vertices[5], 8)  	#c15 - G -> L
 		]
 
-def calcDiff(v, e):
+#Calculate differences for vertices in set
+def calcDiffs(v, e):
 	results = list()
 	for vertex in v:
 		external = reduce(lambda x, y:  x + y.weight if ((y.start == vertex or y.end == vertex) and (y.start.partition != y.end.partition)) else x, e, 0)
-		internal = 0
+		internal = reduce(lambda x, y:  x + y.weight if ((y.start == vertex or y.end == vertex) and (y.start.partition == y.end.partition)) else x, e, 0)
 		results.append(external - internal)
 	return results
 
-def calcDelta(v, e):
-	diffs = calcDiff(v, e)
+def extCost(v, e):
+        res = 0
+        for edge in e:
+                if edge.start.partition != edge.end.partition:
+                        res += edge.weight
+        return res
 
+def calcDeltas(v, e):
+        lstA = filter(lambda x: x.partition == '1', v)
+        lstB = filter(lambda x: x.partition == '2', v)
+        diffsA = calcDiffs(lstA, e)
+        diffsB = calcDiffs(lstB, e)
+        res = list() #list of possible swap tuples with deltas.
+        for a in range(0, len(lstA)):
+                for b in range(0, len(lstB)):
+                        if (lstA[a].swapable and lstB[b].swapable):
+                                #find connections between candidates
+                                conns = filter(lambda x: (x.start == lstA[a] and x.end == lstB[b]) or (x.start == lstB[b] and x.end == lstA[a]), e)
+                                #append tuple to result
+                                delta = diffsA[a] + diffsB[b] - (2 * reduce(lambda x, y: x + y.weight, conns, 0))
+                                res.append((delta , lstA[a], lstB[b]))
+        return res
+
+def swap(a, b):
+       temp = a.partition
+       a.partition =  b.partition
+       b.partition = temp
+       a.swapable =  False
+       b.swapable =  False
+        
 
 def kernighan(v, e):
-	calculateD(v, e);
-	return None
+        n = len(vertices) / 2
+        partitions = list() # list for backtrack
+        #print calcDeltas(v, e)
+        print 'Ext cost: ' + str(extCost(v, e)) + '\n'
+        for i in range(0, n):
+                #init best value
+                best = -sys.maxint - 1
+                #pointer to best item
+                bptr = None
+                deltas = calcDeltas(v, e)
+                #find max delta
+                for d in deltas:
+                        if (d[0] > best):
+                                best = d[0]
+                                bptr = d
+                swap(bptr[1], bptr[2])
+                print '1: \n'
+                print filter(lambda x: x.partition == '1', v)
+                print '2: \n'
+                print filter(lambda x: x.partition == '2', v)
+                print 'Ext cost: ' + str(extCost(v, e)) + '\n'
 
 print vertices
-print edges
+
+kernighan(vertices, edges)
+
+print vertices
