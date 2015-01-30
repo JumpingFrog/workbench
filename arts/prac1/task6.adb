@@ -23,7 +23,7 @@ procedure Main is
 			if Queued = Integer(Tasks'Last) then
 				Release(Tasks'Last) := True;
 			end if;
-			requeue Wait (Client) with abort;
+			requeue Wait (Client);
 		end Barrier;
 
 		entry Wait(for I in Tasks'Range) (Client : Tasks) when Release(I) is
